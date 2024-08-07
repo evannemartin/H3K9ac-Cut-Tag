@@ -17,11 +17,15 @@ library(dplyr)
 library(TxDb.Mmusculus.UCSC.mm39.knownGene)
 library(ChIPseeker)
 library(clusterProfiler)
+getOption("clusterProfiler.download.method")
 library(org.Mm.eg.db)
 library(RColorBrewer)
 library(ggrepel)
 library(biomaRt)
 library(rtracklayer)
+library(R.utils)
+
+R.utils::setOption("clusterProfiler.download.method", "auto")
 
 projPath = "~/Charite Thesis/H3K9ac Cut&Tag/Results/"
 setwd(projPath)
@@ -29,10 +33,8 @@ setwd(projPath)
 
 ####################### Differential enrichment analysis #############################
 
-# diff_files <-
-#   list.files("differential_analysis", pattern = "all_prob_sep_2k_without_outliers_padj0.1.ucsc.csv", full.names = TRUE)
-# diff_files <- as.list(diff_files)
-# diff_files <- lapply(diff_files, read.table, sep = ',', header = TRUE)
+## Uncomment code to get dataframe of all annotations regardless of differential peaks ##
+
 
 diff_KD <- read.table(
   "differential_analysis/KD_masterPeak_prob_sep_2k_without_outliers_padj0.1.ucsc.csv",
@@ -51,11 +53,21 @@ lost_OE <- diff_OE[diff_OE$diffexpressed == 'DOWN', ]
 
 diff_files <- list(enriched_KD, lost_KD, enriched_OE, lost_OE)
 
+# diff_files <- list(diff_KD, diff_OE)
+
 names(diff_files) <-
   c("Enriched_KD", "Lost_KD", "Enriched_OE", "Lost_OE")
 
-diff_files <- lapply(diff_files, makeGRangesFromDataFrame, keep.extra.columns =
-                       TRUE)
+# names(diff_files) <-
+#   c("diff_KD", "diff_OE")
+
+diff_files <- lapply(
+  diff_files,
+  makeGRangesFromDataFrame,
+  keep.extra.columns =
+    TRUE,
+  na.rm = TRUE
+)
 
 # Peak annotation
 
@@ -85,18 +97,20 @@ compGO <- compareCluster(
 
 dotplot(compGO,
         showCategory = 7,
-        font.size = 8,
-        title = "GO Enrichment Analysis")
+        font.size = 7,
+        title = "GO Enrichment Analysis Without Outliers and Low Peaks")
 
 cluster_result_df <- compGO@compareClusterResult
 
 # Extract genes ID of the desired/dominant enrichment class
 
 lost_KD_df <-
-  subset(cluster_result_df, Cluster == "Lost_KD")
+  subset(cluster_result_df,
+         Cluster == "Lost_KD" & Description == "clathrin binding")
 # extract class
-genes_in_major_class = lost_KD_df[which.min(lost_KD_df$p.adjust), ]$geneID
+genes_in_major_class = lost_KD_df$geneID
 genes_in_major_class
+#which.min(lost_KD_df$p.adjust)
 # genes_in_major_class <-
 #   lost_KD_df$geneID
 # genes_in_major_class
@@ -113,6 +127,10 @@ lost_KD_anno <-
 lost_OE_anno <-
   data.frame(peakAnnoList[["Lost_OE"]]@anno)
 
+# diff_KD_anno <-
+#   data.frame(peakAnnoList[["diff_KD"]]@anno)
+# diff_OE_anno <- data.frame(peakAnnoList[["diff_OE"]]@anno)
+
 
 # Get gene names from gene ids
 
@@ -122,6 +140,9 @@ tmp_enriched_KD <- data.frame("entrezgene_id" = enriched_KD_anno$geneId)
 tmp_enriched_OE <- data.frame("entrezgene_id" = enriched_OE_anno$geneId)
 tmp_lost_KD <- data.frame("entrezgene_id" = lost_KD_anno$geneId)
 tmp_lost_OE <- data.frame("entrezgene_id" = lost_OE_anno$geneId)
+
+# tmp_diff_KD <- data.frame("entrezgene_id" = diff_KD_anno$geneId)
+# tmp_diff_OE <- data.frame("entrezgene_id" = diff_OE_anno$geneId)
 
 ids_enriched_KD <- getBM(
   attributes = c("entrezgene_id", "external_gene_name"),
@@ -148,6 +169,19 @@ ids_lost_OE <- getBM(
   mart = mart
 )
 
+# ids_diff_KD <- getBM(
+#   attributes = c("entrezgene_id", "external_gene_name"),
+#   filters = "entrezgene_id",
+#   values = tmp_diff_KD[, "entrezgene_id"],
+#   mart = mart
+# )
+# ids_diff_OE <- getBM(
+#   attributes = c("entrezgene_id", "external_gene_name"),
+#   filters = "entrezgene_id",
+#   values = tmp_diff_OE[, "entrezgene_id"],
+#   mart = mart
+# )
+
 # Merge Gene Annotations
 
 names(ids_enriched_KD)[names(ids_enriched_KD) == "entrezgene_id"] <- "geneId"
@@ -159,8 +193,7 @@ enriched_KD_anno <- left_join(
   relationship = "many-to-many"
 )
 enriched_KD_anno <- enriched_KD_anno[, -c(7:8)]
-#enriched_KD_anno_major_class <-
-#subset(enriched_KD_anno, geneId %in% genes_in_major_class[[1]])
+
 
 names(ids_enriched_OE)[names(ids_enriched_OE) == "entrezgene_id"] <- "geneId"
 ids_enriched_OE$geneId <- as.character(ids_enriched_OE$geneId)
@@ -181,6 +214,7 @@ lost_KD_anno <- left_join(
   relationship = "many-to-many"
 )
 lost_KD_anno <- lost_KD_anno[, -c(7:8)]
+lost_KD_anno_major_class <- subset(lost_KD_anno, geneId %in% genes_in_major_class[[1]])
 
 names(ids_lost_OE)[names(ids_lost_OE) == "entrezgene_id"] <- "geneId"
 ids_lost_OE$geneId <- as.character(ids_lost_OE$geneId)
@@ -192,32 +226,67 @@ lost_OE_anno <- left_join(
 )
 lost_OE_anno <- lost_OE_anno[, -c(7:8)]
 
-# Volcano plot
+# names(ids_diff_KD)[names(ids_diff_KD) == "entrezgene_id"] <- "geneId"
+# ids_diff_KD$geneId <- as.character(ids_diff_KD$geneId)
+# diff_KD_anno <- left_join(
+#   x = diff_KD_anno,
+#   y = ids_diff_KD,
+#   by = "geneId",
+#   relationship = "many-to-many"
+# )
+# diff_KD_anno <- diff_KD_anno[, -c(7:8)]
+#
+# names(ids_diff_OE)[names(ids_diff_OE) == "entrezgene_id"] <- "geneId"
+# ids_diff_OE$geneId <- as.character(ids_diff_OE$geneId)
+# diff_OE_anno <- left_join(
+#   x = diff_OE_anno,
+#   y = ids_diff_OE,
+#   by = "geneId",
+#   relationship = "many-to-many"
+# )
+# diff_OE_anno <- diff_OE_anno[, -c(7:8)]
+
+# Export differential peaks
 
 diff_KD_anno <- rbind(enriched_KD_anno, lost_KD_anno)
+write.table(
+  diff_KD_anno,
+  "differential_analysis/all_Tau_KD_anno_without_outliers_2k.csv",
+  row.names = FALSE,
+  quote = FALSE,
+  sep = ";"
+)
 diff_KD_anno_gr <- GRanges(
   seqnames = diff_KD_anno$seqnames,
   ranges = IRanges(start = diff_KD_anno$start, end = diff_KD_anno$end)
 )
 export(
   diff_KD_anno_gr,
-  "differential_analysis/diff_KD_masterPeak_sep_2k_without_outliers.bed",
+  "differential_analysis/diff_KD_masterPeak_sep_without_outliers.bed",
   "bed"
 )
 diff_KD_anno <- diff_KD_anno[c("PeakID", "external_gene_name")]
 
 diff_OE_anno <- rbind(enriched_OE_anno, lost_OE_anno)
+write.table(
+  diff_OE_anno,
+  "differential_analysis/all_Tau_OE_anno_without_outliers_2k.csv",
+  row.names = FALSE,
+  quote = FALSE,
+  sep = ";"
+)
 diff_OE_anno_gr <- GRanges(
   seqnames = diff_OE_anno$seqnames,
   ranges = IRanges(start = diff_OE_anno$start, end = diff_OE_anno$end)
 )
 export(
   diff_OE_anno_gr,
-  "differential_analysis/diff_OE_masterPeak_sep_2k_without_outliers.bed",
+  "differential_analysis/diff_OE_masterPeak_sep_without_outliers.bed",
   "bed"
 )
 diff_OE_anno <- diff_OE_anno[c("PeakID", "external_gene_name")]
 
+# Merge gene name with statistics
 
 diff_KD <- left_join(
   x = diff_KD,
@@ -233,6 +302,7 @@ diff_OE <- left_join(
   relationship = "many-to-many"
 )
 
+# Volcano plot
 
 p <- ggplot(
   data = diff_KD,
@@ -243,13 +313,18 @@ p <- ggplot(
     label = external_gene_name
   )
 ) +
+  ggtitle("Tau Knockdown Differential Annotation") +
   geom_point() +
   theme_minimal() +
   geom_text_repel() +
   scale_color_manual(values = c("blue", "black", "red")) +
   geom_vline(xintercept = c(-0.5, 0.5), col = "red") +
-  geom_hline(yintercept = -log10(0.1), col = "red")
+  geom_hline(yintercept = -log10(0.1), col = "red") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  ylim(0, 7) +
+  xlim(-5, 5)
 p
+
 
 p1 <- ggplot(
   data = diff_OE,
@@ -260,15 +335,18 @@ p1 <- ggplot(
     label = external_gene_name
   )
 ) +
+  ggtitle("Tau Overexpression Differential Annotation") +
   geom_point() +
   theme_minimal() +
   geom_text_repel() +
   scale_color_manual(values = c("blue", "black", "red")) +
   geom_vline(xintercept = c(-0.5, 0.5), col = "red") +
-  geom_hline(yintercept = -log10(0.1), col = "red")
+  geom_hline(yintercept = -log10(0.1), col = "red") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  ylim(0, 7) +
+  xlim(-9, 9)
 p1
 
-#make change color per chr
 
 ######################## General enrichment analysis ###############################
 
@@ -281,7 +359,7 @@ names(samplefiles) <-
     "TAU_KD_rep1",
     "TAU_KD_rep2",
     "TAU_OE_rep1")
-
+file <- read.table("SEACR/Tau_KD_1_top01_peaks.stringent.bed")
 
 # Peak annotation
 
@@ -300,10 +378,10 @@ genes <- lapply(peakAnnoList, function(i) {
 
 compKEGG <- compareCluster(
   geneCluster = genes,
-  fun = "enrichKEGG",
-  organism = "mouse",
+  fun = "enrichGO",
+  #organism = "mouse",
   pvalueCutoff = 0.1,
-  #OrgDb = org.Mm.eg.db,
+  OrgDb = org.Mm.eg.db,
   pAdjustMethod = "BH"
 )
 
@@ -311,7 +389,6 @@ dotplot(
   compKEGG,
   showCategory = 7,
   font.size = 8,
-  title = "KEGG Enrichment Analysis"
+  title = "GO Enrichment Analysis"
 )
-
 
