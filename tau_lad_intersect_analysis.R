@@ -67,21 +67,7 @@ enriched_KD_analysis <- overlapPermTest(
 )
 enriched_KD_analysis
 plot(enriched_KD_analysis)
-862/len_enriched_KD_peaks
-
-pvalue_enriched_KD <- enriched_KD_analysis$numOverlaps$pval
-
-# Compute Odds Ratio
-
-random_overlap_nb_enriched_KD <- mean(enriched_KD_analysis$numOverlaps$permuted)
-observed_overlap_nb_enriched_KD <-  enriched_KD_analysis$numOverlaps$observed
-random_nonoverlap_nb_enriched_KD <- len_enriched_KD_peaks-random_overlap_nb_enriched_KD
-observed_nonoverlap_nb_enriched_KD <- len_enriched_KD_peaks-observed_overlap_nb_enriched_KD
-
-OR_enriched_KD = (observed_overlap_nb_enriched_KD / random_overlap_nb_enriched_KD)/(observed_nonoverlap_nb_enriched_KD /
-                                                                                      random_nonoverlap_nb_enriched_KD)
-log(OR_enriched_KD)
-
+mean(enriched_KD_analysis$numOverlaps$permuted)
 
 lost_KD_analysis <- overlapPermTest(
   A = lost_KD_peaks,
@@ -93,19 +79,7 @@ lost_KD_analysis <- overlapPermTest(
 )
 lost_KD_analysis
 plot(lost_KD_analysis)
-1082/len_lost_KD_peaks
-
-pvalue_lost_KD <- lost_KD_analysis$numOverlaps$pval
-
-random_overlap_nb_lost_KD <- mean(lost_KD_analysis$numOverlaps$permuted)
-observed_overlap_nb_lost_KD <-  lost_KD_analysis$numOverlaps$observed
-random_nonoverlap_nb_lost_KD <- len_lost_KD_peaks-random_overlap_nb_lost_KD
-observed_nonoverlap_nb_lost_KD <- len_lost_KD_peaks-observed_overlap_nb_lost_KD
-
-OR_lost_KD = (observed_overlap_nb_lost_KD / random_overlap_nb_lost_KD)/(observed_nonoverlap_nb_lost_KD /
-                                                                          random_nonoverlap_nb_lost_KD)
-log(OR_lost_KD)
-
+mean(lost_KD_analysis$numOverlaps$permuted)
 
 enriched_OE_analysis <- overlapPermTest(
   A = enriched_OE_peaks,
@@ -117,19 +91,7 @@ enriched_OE_analysis <- overlapPermTest(
 )
 enriched_OE_analysis
 plot(enriched_OE_analysis)
-472/len_enriched_OE_peaks
-
-pvalue_enriched_OE <- enriched_OE_analysis$numOverlaps$pval
-
-random_overlap_nb_enriched_OE <- mean(enriched_OE_analysis$numOverlaps$permuted)
-observed_overlap_nb_enriched_OE <-  enriched_OE_analysis$numOverlaps$observed
-random_nonoverlap_nb_enriched_OE <- len_enriched_OE_peaks-random_overlap_nb_enriched_OE
-observed_nonoverlap_nb_enriched_OE <- len_enriched_OE_peaks-observed_overlap_nb_enriched_OE
-
-OR_enriched_OE = (observed_overlap_nb_enriched_OE / random_overlap_nb_enriched_OE)/(observed_nonoverlap_nb_enriched_OE /
-                                                                                      random_nonoverlap_nb_enriched_OE)
-log(OR_enriched_OE)
-
+mean(enriched_OE_analysis$numOverlaps$permuted)
 
 lost_OE_analysis <- overlapPermTest(
   A = lost_OE_peaks,
@@ -141,19 +103,7 @@ lost_OE_analysis <- overlapPermTest(
 )
 lost_OE_analysis
 plot(lost_OE_analysis)
-933/len_lost_OE_peaks
-
-pvalue_lost_OE <- lost_OE_analysis$numOverlaps$pval
-
-random_overlap_nb_lost_OE <- mean(lost_OE_analysis$numOverlaps$permuted)
-observed_overlap_nb_lost_OE <-  lost_OE_analysis$numOverlaps$observed
-random_nonoverlap_nb_lost_OE <- len_lost_OE_peaks-random_overlap_nb_lost_OE
-observed_nonoverlap_nb_lost_OE <- len_lost_OE_peaks-observed_overlap_nb_lost_OE
-
-OR_lost_OE = (observed_overlap_nb_lost_OE / random_overlap_nb_lost_OE)/(observed_nonoverlap_nb_lost_OE /
-                                                                          random_nonoverlap_nb_lost_OE)
-log(OR_lost_OE)
-
+mean(lost_OE_analysis$numOverlaps$permuted)
 
 ### Permutation test with T2
 
@@ -167,19 +117,7 @@ enriched_KD_analysis_T2 <- overlapPermTest(
 )
 enriched_KD_analysis_T2
 plot(enriched_KD_analysis_T2)
-# 862/len_enriched_KD_peaks
-#
-# pvalue_enriched_KD <- enriched_KD_analysis$numOverlaps$pval
-#
-# random_overlap_nb_enriched_KD <- mean(enriched_KD_analysis$numOverlaps$permuted)
-# observed_overlap_nb_enriched_KD <-  enriched_KD_analysis$numOverlaps$observed
-# random_nonoverlap_nb_enriched_KD <- len_enriched_KD_peaks-random_overlap_nb_enriched_KD
-# observed_nonoverlap_nb_enriched_KD <- len_enriched_KD_peaks-observed_overlap_nb_enriched_KD
-#
-# OR_enriched_KD = (observed_overlap_nb_enriched_KD / random_overlap_nb_enriched_KD)/(observed_nonoverlap_nb_enriched_KD /
-#                                                                                       random_nonoverlap_nb_enriched_KD)
-# log(OR_enriched_KD)
-
+mean(enriched_KD_analysis_T2$numOverlaps$permuted)
 
 lost_KD_analysis_T2 <- overlapPermTest(
   A = lost_KD_peaks,
@@ -191,19 +129,7 @@ lost_KD_analysis_T2 <- overlapPermTest(
 )
 lost_KD_analysis_T2
 plot(lost_KD_analysis_T2)
-# 1082/len_lost_KD_peaks
-#
-# pvalue_lost_KD <- lost_KD_analysis$numOverlaps$pval
-#
-# random_overlap_nb_lost_KD <- mean(lost_KD_analysis$numOverlaps$permuted)
-# observed_overlap_nb_lost_KD <-  lost_KD_analysis$numOverlaps$observed
-# random_nonoverlap_nb_lost_KD <- len_lost_KD_peaks-random_overlap_nb_lost_KD
-# observed_nonoverlap_nb_lost_KD <- len_lost_KD_peaks-observed_overlap_nb_lost_KD
-#
-# OR_lost_KD = (observed_overlap_nb_lost_KD / random_overlap_nb_lost_KD)/(observed_nonoverlap_nb_lost_KD /
-#                                                                           random_nonoverlap_nb_lost_KD)
-# log(OR_lost_KD)
-
+mean(lost_KD_analysis_T2$numOverlaps$permuted)
 
 enriched_OE_analysis_T2 <- overlapPermTest(
   A = enriched_OE_peaks,
@@ -215,19 +141,7 @@ enriched_OE_analysis_T2 <- overlapPermTest(
 )
 enriched_OE_analysis_T2
 plot(enriched_OE_analysis_T2)
-# 472/len_enriched_OE_peaks
-#
-# pvalue_enriched_OE <- enriched_OE_analysis$numOverlaps$pval
-#
-# random_overlap_nb_enriched_OE <- mean(enriched_OE_analysis$numOverlaps$permuted)
-# observed_overlap_nb_enriched_OE <-  enriched_OE_analysis$numOverlaps$observed
-# random_nonoverlap_nb_enriched_OE <- len_enriched_OE_peaks-random_overlap_nb_enriched_OE
-# observed_nonoverlap_nb_enriched_OE <- len_enriched_OE_peaks-observed_overlap_nb_enriched_OE
-#
-# OR_enriched_OE = (observed_overlap_nb_enriched_OE / random_overlap_nb_enriched_OE)/(observed_nonoverlap_nb_enriched_OE /
-#                                                                                       random_nonoverlap_nb_enriched_OE)
-# log(OR_enriched_OE)
-
+mean(enriched_OE_analysis_T2$numOverlaps$permuted)
 
 lost_OE_analysis_T2 <- overlapPermTest(
   A = lost_OE_peaks,
@@ -239,15 +153,4 @@ lost_OE_analysis_T2 <- overlapPermTest(
 )
 lost_OE_analysis_T2
 plot(lost_OE_analysis_T2)
-# 933/len_lost_OE_peaks
-#
-# pvalue_lost_OE <- lost_OE_analysis$numOverlaps$pval
-#
-# random_overlap_nb_lost_OE <- mean(lost_OE_analysis$numOverlaps$permuted)
-# observed_overlap_nb_lost_OE <-  lost_OE_analysis$numOverlaps$observed
-# random_nonoverlap_nb_lost_OE <- len_lost_OE_peaks-random_overlap_nb_lost_OE
-# observed_nonoverlap_nb_lost_OE <- len_lost_OE_peaks-observed_overlap_nb_lost_OE
-#
-# OR_lost_OE = (observed_overlap_nb_lost_OE / random_overlap_nb_lost_OE)/(observed_nonoverlap_nb_lost_OE /
-#                                                                           random_nonoverlap_nb_lost_OE)
-# log(OR_lost_OE)
+mean(lost_OE_analysis_T2$numOverlaps$permuted)
